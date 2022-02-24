@@ -73,5 +73,5 @@ func StartMainServer() error {
 	http.HandleFunc("/todos/delete/", parseURL(todoDelete))
 	// herokuでは環境変数PORTでポートを取得する
 	port := os.Getenv("PORT")
-	return http.ListenAndServe("localhost:"+port, nil)
+	return http.ListenAndServe(":"+port, nil)
 }
