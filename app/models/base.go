@@ -5,54 +5,70 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"main/config"
+	"os"
+	"todo_app_heroku/config"
 
 	"github.com/google/uuid"
-
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/lib/pq"
+	// _ "github.com/mattn/go-sqlite3"
 )
 
 var Db *sql.DB
 
 var err error
 
+/*
 const (
 	tableNameUser    = "users"
 	tableNameTodo    = "todos"
 	tableNameSession = "sessions"
 )
+*/
 
 func init() {
-	Db, err = sql.Open(config.Config.SQLDriver, config.Config.DbName)
+	//herokuにはDATABASE_URLという環境変数でDBの場所がわかる。
+	url := os.Getenv("DATABASE_URL")
+	connection, _ := pq.ParseURL(url)
+	//herokuではSSL接続必須
+	connection += "sslmode=require"
+	Db, err = sql.Open(config.Config.SQLDriver, connection)
 
 	if err != nil {
 		log.Fatalln(err)
 	}
+	/*
+		// sqlite3
+			Db, err = sql.Open(config.Config.SQLDriver, config.Config.DbName)
 
-	cmdU := fmt.Sprintf(`create table if not exists %s(
-		id integer primary key autoincrement,
-		uuid string not null unique,
-		name string,
-		email string,
-		password string,
-		created_at datetime)`, tableNameUser)
+			if err != nil {
+				log.Fatalln(err)
+			}
 
-	Db.Exec(cmdU)
+			cmdU := fmt.Sprintf(`create table if not exists %s(
+				id integer primary key autoincrement,
+				uuid string not null unique,
+				name string,
+				email string,
+				password string,
+				created_at datetime)`, tableNameUser)
 
-	cmdT := fmt.Sprintf(`create table if not exists %s(
-		id integer primary key autoincrement,
-		content text,
-		user_id integer,
-		created_at datetime)`, tableNameTodo)
-	Db.Exec(cmdT)
+			Db.Exec(cmdU)
 
-	cmdS := fmt.Sprintf(`create table if not exists %s(
-		id integer primary key autoincrement,
-		uuid string not null unique,
-		email string,
-		user_id integer,
-		created_at datetime)`, tableNameSession)
-	Db.Exec(cmdS)
+			cmdT := fmt.Sprintf(`create table if not exists %s(
+				id integer primary key autoincrement,
+				content text,
+				user_id integer,
+				created_at datetime)`, tableNameTodo)
+			Db.Exec(cmdT)
+
+			cmdS := fmt.Sprintf(`create table if not exists %s(
+				id integer primary key autoincrement,
+				uuid string not null unique,
+				email string,
+				user_id integer,
+				created_at datetime)`, tableNameSession)
+			Db.Exec(cmdS)
+	*/
 }
 
 func createUUID() (uuidobj uuid.UUID) {

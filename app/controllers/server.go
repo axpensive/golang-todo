@@ -2,12 +2,13 @@ package controllers
 
 import (
 	"fmt"
-	"main/app/models"
-	"main/config"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"text/template"
+	"todo_app_heroku/app/models"
+	"todo_app_heroku/config"
 )
 
 func generateHTML(w http.ResponseWriter, data interface{}, filenames ...string) {
@@ -70,5 +71,7 @@ func StartMainServer() error {
 	http.HandleFunc("/todos/edit/", parseURL(todoEdit))
 	http.HandleFunc("/todos/update/", parseURL(todoUpdate))
 	http.HandleFunc("/todos/delete/", parseURL(todoDelete))
-	return http.ListenAndServe("localhost:"+config.Config.Port, nil)
+	// herokuでは環境変数PORTでポートを取得する
+	port := os.Getenv("PORT")
+	return http.ListenAndServe("localhost:"+port, nil)
 }
